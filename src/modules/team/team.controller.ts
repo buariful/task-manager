@@ -29,7 +29,7 @@ export const createTeam = catchAsync(
   },
 );
 
-// Get all teams of a user
+// Get all teams created by an user
 export const getTeams = catchAsync(async (req: AuthRequest, res: Response) => {
   const createdBy = req.user?._id;
 
@@ -50,14 +50,14 @@ export const getTeamById = catchAsync(async (req: Request, res: Response) => {
 // Update team
 export const updateTeam = catchAsync(async (req: Request, res: Response) => {
   const { teamId } = req.params;
-  const { name, members } = req.body;
+  const { name } = req.body;
 
   const team = await TeamModel.findById(teamId);
   if (!team)
     return returnErrorResponse({ res, status: 404, message: 'Team not found' });
 
   if (name) team.name = name;
-  if (members) team.members = members;
+  // if (members) team.members = members;
 
   await team.save();
   return returnSuccessResponse({
