@@ -5,8 +5,10 @@ import {
   getTeamById,
   updateTeam,
   deleteTeam,
+  createTeamWithMembers,
 } from './team.controller';
 import { authenticateJWT } from '../../core/middleware/auth';
+import { catchAsync } from '../../utils/catchAync';
 
 const router = Router();
 
@@ -18,5 +20,7 @@ router.get('/', getTeams);
 router.get('/:teamId', getTeamById);
 router.put('/:teamId', updateTeam);
 router.delete('/:teamId', deleteTeam);
+// router.post('/create-with-members', catchAsync(createTeamWithMembers));
+router.post('/create-with-members', catchAsync(createTeamWithMembers));
 
 export const TeamRoutes = router;

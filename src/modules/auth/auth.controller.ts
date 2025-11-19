@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../user/user.model';
 import { registerSchema, loginSchema } from './auth.validator';
+import config from '../../app/config';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -51,7 +52,7 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       { id: user._id, username: user.username, email: user.email },
-      process.env.JWT_SECRET || 'secret',
+      config.jwt_secret as string,
       { expiresIn: '7d' },
     );
 

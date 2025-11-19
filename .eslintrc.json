@@ -15,12 +15,20 @@
     "prettier"
   ],
   "rules": {
-    "no-unused-vars": "error",
+    
     "no-unused-expressions": "error",
     "prefer-const": "error", // let use hoise but reassign hoy nai tahole const use korte prefer kore
     "no-console": "warn",
     "no-undef": "error", //no undefined variables
-    "@typescript-eslint/no-explicit-any": "warn"
+    "@typescript-eslint/no-explicit-any": "warn",
+   "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_?([A-Z][A-Za-z0-9]+)$",
+        "ignoreRestSiblings": true
+      }
+    ]
   },
   "globals": {
     "process": "readonly"

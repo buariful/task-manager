@@ -8,7 +8,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
-    const user = await UserModel.findById(req.user._id);
+    const user = await UserModel.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json(user);
@@ -29,7 +29,7 @@ export const updateMe = async (req: AuthRequest, res: Response) => {
       });
 
     const updatedUser = await UserModel.findByIdAndUpdate(
-      req.user._id,
+      req.user.id,
       { ...parseResult.data },
       { new: true },
     );
@@ -53,7 +53,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     const { oldPassword, newPassword } = parseResult.data;
 
-    const user = await UserModel.findById(req.user._id);
+    const user = await UserModel.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
