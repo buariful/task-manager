@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { UserModel } from '../user/user.model';
 import { registerSchema, loginSchema } from './auth.validator';
 import config from '../../app/config';
+import { returnErrorResponse, returnSuccessResponse } from '../../utils/utils';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -20,16 +21,36 @@ export const register = async (req: Request, res: Response) => {
       $or: [{ username }, { email }],
     });
     if (existingUser)
-      return res
-        .status(400)
-        .json({ message: 'Username or email already exists' });
+      return returnErrorResponse({
+        res,
+        status: 400,
+        message: 'Username or email already exists',
+      });
 
     const newUser = new UserModel({ username, email, password, fullName });
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    const token = jwt.sign(
+      { id: newUser._id, username: newUser.username, email: newUser.email },
+      config.jwt_secret as string,
+      { expiresIn: '7d' },
+    );
+
+    return returnSuccessResponse({
+      res,
+      status: 201,
+      message: 'User registered successfully',
+      data: {
+        token,
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+        },
+      },
+    });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err });
+    return returnErrorResponse({ res, status: 500, message: 'Server error' });
   }
 };
 
@@ -37,18 +58,30 @@ export const login = async (req: Request, res: Response) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success)
-      return res
-        .status(400)
-        .json({ message: 'Validation failed', errors: parsed.error.errors });
+      return returnErrorResponse({
+        res,
+        status: 400,
+        message: 'Validation failed',
+      });
 
     const { username, password } = parsed.data;
 
     // const user = await UserModel.findByUsername(username);
     const user = await UserModel.findByUsername(username);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user)
+      return returnErrorResponse({
+        res,
+        status: 404,
+        message: 'User not found',
+      });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid password' });
+    if (!isMatch)
+      return returnErrorResponse({
+        res,
+        status: 400,
+        message: 'Invalid password',
+      });
 
     const token = jwt.sign(
       { id: user._id, username: user.username, email: user.email },
@@ -56,11 +89,16 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: '7d' },
     );
 
-    res.json({
-      token,
-      user: { id: user._id, username: user.username, email: user.email },
+    return returnSuccessResponse({
+      res,
+      status: 200,
+      message: 'User logged in successfully',
+      data: {
+        token,
+        user: { id: user._id, username: user.username, email: user.email },
+      },
     });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err });
+    return returnErrorResponse({ res, status: 500, message: 'Server error' });
   }
 };

@@ -7,7 +7,7 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email'),
   fullName: z.object({
     firstName: z.string().min(1, 'First name required'),
-    lastName: z.string().min(1, 'Last name required'),
+    lastName: z.string().optional(),
   }),
 });
 

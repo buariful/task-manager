@@ -96,6 +96,28 @@ export const deleteTeam: RequestHandler = async (
   return returnSuccessResponse({ res, message: 'Team deleted successfully' });
 };
 
+// Add member to team
+export const addMember: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { teamId } = req.params;
+  const { name, role, capacity } = req.body;
+
+  const team = await TeamModel.findById(teamId);
+  if (!team)
+    return returnErrorResponse({ res, status: 404, message: 'Team not found' });
+
+  team.members.push({ name, role, capacity });
+  await team.save();
+
+  return returnSuccessResponse({
+    res,
+    message: 'Member added successfully',
+    data: team,
+  });
+};
+
 export const createTeamWithMembers: RequestHandler = async (
   req: AuthRequest,
   res: Response,

@@ -6,6 +6,13 @@ const teamSchema = new Schema<TTeam, TTeamModel>(
   {
     name: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    members: [
+      {
+        name: { type: String, required: true },
+        role: { type: String, required: true },
+        capacity: { type: Number, min: 0, max: 5, required: true },
+      },
+    ],
   },
   { timestamps: true },
 );

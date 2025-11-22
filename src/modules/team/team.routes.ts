@@ -6,6 +6,7 @@ import {
   updateTeam,
   deleteTeam,
   createTeamWithMembers,
+  addMember,
 } from './team.controller';
 import { authenticateJWT } from '../../core/middleware/auth';
 import { catchAsync } from '../../utils/catchAync';
@@ -20,6 +21,7 @@ router.get('/', getTeams);
 router.get('/:teamId', getTeamById);
 router.put('/:teamId', updateTeam);
 router.delete('/:teamId', deleteTeam);
+router.post('/:teamId/members', addMember);
 // router.post('/create-with-members', catchAsync(createTeamWithMembers));
 router.post('/create-with-members', catchAsync(createTeamWithMembers));
 

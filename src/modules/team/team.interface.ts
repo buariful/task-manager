@@ -6,6 +6,7 @@ export interface TTeamMember {
 }
 export interface TTeam extends Document {
   name: string;
+  members: TTeamMember[];
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
