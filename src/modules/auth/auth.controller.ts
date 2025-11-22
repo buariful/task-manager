@@ -5,6 +5,7 @@ import { UserModel } from '../user/user.model';
 import { registerSchema, loginSchema } from './auth.validator';
 import config from '../../app/config';
 import { returnErrorResponse, returnSuccessResponse } from '../../utils/utils';
+import { AuthRequest } from '../../core/middleware/auth.interface';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -101,4 +102,26 @@ export const login = async (req: Request, res: Response) => {
   } catch (err) {
     return returnErrorResponse({ res, status: 500, message: 'Server error' });
   }
+};
+
+export const check = async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    return returnErrorResponse({
+      res,
+      status: 404,
+      message: 'User not found',
+    });
+  }
+
+  return returnSuccessResponse({
+    res,
+    status: 200,
+    message: 'Token is valid',
+    data: {
+      user: { id: user._id, username: user.username, email: user.email },
+    },
+  });
 };
