@@ -20,14 +20,24 @@ export const createTeam: RequestHandler = async (
       message: 'Team name is required',
     });
 
-  const team = new TeamModel({ name, members, createdBy });
+  const team = new TeamModel({ name, createdBy });
   await team.save();
+
+  if (members && Array.isArray(members) && members.length > 0) {
+    const membersToCreate = members.map((m: any) => ({
+      ...m,
+      teamId: team._id,
+    }));
+    await MemberModel.insertMany(membersToCreate);
+  }
+
+  const populatedTeam = await TeamModel.findById(team._id).populate('members');
 
   return returnSuccessResponse({
     res,
     status: 201,
     message: 'Team created successfully',
-    data: team,
+    data: populatedTeam,
   });
 };
 
@@ -38,7 +48,7 @@ export const getTeams: RequestHandler = async (
 ) => {
   const createdBy = req.user?.id;
 
-  const teams = await TeamModel.find({ createdBy });
+  const teams = await TeamModel.find({ createdBy }).populate('members');
   return returnSuccessResponse({ res, data: teams });
 };
 
@@ -48,7 +58,7 @@ export const getTeamById: RequestHandler = async (
   res: Response,
 ) => {
   const { teamId } = req.params;
-  const team = await TeamModel.findById(teamId);
+  const team = await TeamModel.findById(teamId).populate('members');
   if (!team)
     return returnErrorResponse({ res, status: 404, message: 'Team not found' });
 
@@ -108,13 +118,19 @@ export const addMember: RequestHandler = async (
   if (!team)
     return returnErrorResponse({ res, status: 404, message: 'Team not found' });
 
-  team.members.push({ name, role, capacity });
-  await team.save();
+  await MemberModel.create({
+    name,
+    role,
+    capacity,
+    teamId: team._id,
+  });
+
+  const updatedTeam = await TeamModel.findById(teamId).populate('members');
 
   return returnSuccessResponse({
     res,
     message: 'Member added successfully',
-    data: team,
+    data: updatedTeam,
   });
 };
 
@@ -140,6 +156,7 @@ export const createTeamWithMembers: RequestHandler = async (
         teamId: team._id,
         role: 'admin',
         capacity: 5,
+        name: 'Admin', // Default name if not provided
       },
     ];
 
@@ -149,16 +166,19 @@ export const createTeamWithMembers: RequestHandler = async (
         teamId: team._id,
         role: 'member',
         capacity: 3,
+        name: 'Member', // Default name
       }),
     );
 
     await MemberModel.insertMany(membersToCreate);
   }
 
+  const populatedTeam = await TeamModel.findById(team._id).populate('members');
+
   return returnSuccessResponse({
     res,
     status: 201,
     message: 'Team and members created successfully',
-    data: { teamId: team._id, name: team.name, memberIds },
+    data: populatedTeam,
   });
 };

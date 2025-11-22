@@ -6,7 +6,7 @@ export interface TTeamMember {
 }
 export interface TTeam extends Document {
   name: string;
-  members: TTeamMember[];
+  members?: TTeamMember[]; // Virtual
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;

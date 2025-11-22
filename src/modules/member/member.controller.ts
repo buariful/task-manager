@@ -3,7 +3,6 @@ import { MemberModel } from './member.schema';
 import { createMemberSchema } from './member.validator';
 import { catchAsync } from '../../utils/catchAync';
 import { returnErrorResponse, returnSuccessResponse } from '../../utils/utils';
-import { Types } from 'mongoose';
 
 export const createMember = catchAsync(async (req: Request, res: Response) => {
   const parsed = createMemberSchema.safeParse(req.body);
@@ -15,24 +14,9 @@ export const createMember = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const { userId, teamId, role, capacity } = parsed.data;
-
-  const userObjectId = new Types.ObjectId(userId);
-  const teamObjectId = new Types.ObjectId(teamId);
-
-  const exists = await MemberModel.findByUserAndTeam(
-    userObjectId,
-    teamObjectId,
-  );
-  if (exists)
-    return returnErrorResponse({
-      res,
-      status: 400,
-      message: 'This user is already a member of the team',
-    });
+  const { teamId, role, capacity } = parsed.data;
 
   const member = await MemberModel.create({
-    userId,
     teamId,
     role,
     capacity,

@@ -1,13 +1,13 @@
 import { Schema, model } from 'mongoose';
-import { MemberRole, TMember, TMemberModel } from './member.interface';
+import { TMember, TMemberModel } from './member.interface';
 
 const memberSchema = new Schema<TMember>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    name: { type: String, required: true },
+    // userId: { type: Schema.Types.ObjectId, ref: 'User' },
     teamId: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
     role: {
       type: String,
-      enum: Object.values(MemberRole),
       required: true,
     },
     capacity: { type: Number, min: 0, max: 5, required: true },

@@ -7,7 +7,8 @@ export enum MemberRole {
 }
 
 export interface TMember extends Document {
-  userId: Types.ObjectId;
+  name: string;
+  userId?: Types.ObjectId;
   teamId: Types.ObjectId;
   role: MemberRole;
   capacity: number;

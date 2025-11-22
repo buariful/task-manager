@@ -6,16 +6,19 @@ const teamSchema = new Schema<TTeam, TTeamModel>(
   {
     name: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    members: [
-      {
-        name: { type: String, required: true },
-        role: { type: String, required: true },
-        capacity: { type: Number, min: 0, max: 5, required: true },
-      },
-    ],
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
+
+teamSchema.virtual('members', {
+  ref: 'Member',
+  localField: '_id',
+  foreignField: 'teamId',
+});
 
 // teamSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
 //   await MemberModel.deleteMany({ teamId: this._id });
